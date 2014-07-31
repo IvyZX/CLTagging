@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header }}</a></h1>
+Social Tagging
+<br><br>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{# Footer copyright (right side) #}
+{% block copyright %}
+  <br>Developed by <a href="http://collablab.northwestern.edu" target="_blank">Samantha Trippy</a> 
+{% endblock %}

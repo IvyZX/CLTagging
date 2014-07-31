@@ -1,0 +1,132 @@
+<html>
+    <head>
+        <title>Research</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        
+        <script src="{{STATIC_URL}}js/jquery-2.0.3.js" ></script> 
+        <!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+        <!-- Upvote-->
+        <script src="{{STATIC_URL}}js/jquery-2.0.2.min.js"></script>
+        <script src="{{STATIC_URL}}css/jquery.upvote.js" ></script>
+        <link rel="stylesheet" href="{{STATIC_URL}}tests/qunit-1.11.0.css">
+        <link rel="stylesheet" href="{{STATIC_URL}}css/jquery.upvote.css">
+            <style type="text/css">
+              .hidden {
+                  display: none;
+              }
+              div.upvote {
+                  float: left;
+              }
+            </style>
+
+        
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-default" role="navigation">
+          <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand">Tagging Project</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+               <li class="active"><a href="/entry/">Test in progress</a></li>
+               <li> <a href="/login/" id="exit">Exit test</a></li>
+              </ul>
+              
+            </div><!-- /.navbar-collapse -->
+          </div><!-- /.container-fluid -->
+        </nav>
+       
+        <div class="container" style="width:50%;">
+        	<div class="panel panel-default">
+			  <div class="panel-heading">
+			    <h3 class="panel-title">PASSAGE #{{data.pass_num}}:</h3>
+			  </div>
+			  <div class="panel-body">
+			    {{data.entry}}
+			  </div>
+			</div>
+			<br>
+
+        <h4>Existing Tags: </h4>
+            <h5>Click the checkbox of an existing tag below to increment that tag by 1,
+                or cancel the increment you did by un-checking your checks. </h5>
+
+            <form action="/vote/{{es_id}}" method="post">
+            {% csrf_token %}
+            {% for tag in data.tags %}
+                {% if tag.upvoted %}
+                    <input type="checkbox" name="tag[]" id="tag{{ forloop.counter }}" value="{{ tag.tid }}" checked/>
+                    {% else %}
+                    <input type="checkbox" name="tag[]" id="tag{{ forloop.counter }}" value="{{ tag.tid }}"/>
+                {% endif %}
+                <label for="tag{{ forloop.counter }}">{{ tag.tag }} {{ tag.num_votes }}</label><br />
+            {% endfor %}
+            <input type="submit" value="Update tag counts" />
+            </form>
+
+                <!-- <div class="btn-group">
+                   {% for tag in data.tags %}
+                    <button id="increment" type="button" class="increment btn btn-default" value='{{tag.tid}}' method="POST">
+                        {{tag.tag}} &nbsp; {{tag.tag}}
+                    </button>
+                    {% empty %} <p> No tags </p>
+                    {% endfor%} -->
+
+                    <!-- {% for tag in data.tags %}
+                    <div class="upvote" data-id="{{tag.tid}}" >
+
+                        <a class="upvote"></a>
+                        <span class="count">{{tag.num_votes}}</span>
+                        <a class="downvote"></a>
+                        {{tag.tag}}
+                    </div>
+                    {% empty %} <p> No tags </p>
+                    {% endfor%} -->
+                <br>
+                <br>
+
+                <strong>Add tag here!</strong><br />
+
+                <form id="add_tag_form" method="post" action="/add/{{es_id}}"
+                        enctype="multipart/form-data">
+
+                    {% csrf_token %}
+
+                    {{ add_tag_form.as_table }}
+
+                    <!-- Provide a button to click to submit the form. -->
+                    <input type="submit" name="submit" value="Add New Tag" />
+                </form>
+
+            
+
+            </div>
+
+            <ul class="pager">
+            <li><a href="/prev/">Previous</a></li>
+            <li><a href="/next/">Next</a></li>
+        </ul>
+        </div>
+        <script type="text/javascript" src="{{STATIC_URL}}js/tagging.js"></script>
+        
+    </body>
+</html>
