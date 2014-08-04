@@ -5,13 +5,10 @@
         
         <script src="{{STATIC_URL}}js/jquery-2.0.3.js" ></script> 
         <!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-
-		<!-- Optional theme -->
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="{{STATIC_URL}}css/bootstrap.css">
 
 		<!-- Latest compiled and minified JavaScript -->
-		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<script src="{{STATIC_URL}}js/bootstrap.js"></script>
 
         <!-- Upvote-->
         <script src="{{STATIC_URL}}js/jquery-2.0.2.min.js"></script>
@@ -55,7 +52,7 @@
           </div><!-- /.container-fluid -->
         </nav>
        
-        <div class="container" style="width:50%;">
+        <div class="container" style="width:70%; float:left;">
         	<div class="panel panel-default">
 			  <div class="panel-heading">
 			    <h3 class="panel-title">PASSAGE #{{data.pass_num}}:</h3>
@@ -64,9 +61,15 @@
 			    {{data.entry}}
 			  </div>
 			</div>
-			<br>
+        </div>
 
-        <h4>Existing Tags: </h4>
+        <div class="container" style="width:30%; float:right">
+            <ul class="pager">
+                <li><a href="/prev/">Previous Passage</a></li>
+                <li><a href="/next/">Next Passage</a></li>
+            </ul>
+
+            <h4>Existing Tags: </h4>
             <h5>Click the checkbox of an existing tag below to increment that tag by 1,
                 or cancel the increment you did by un-checking your checks. </h5>
 
@@ -78,7 +81,7 @@
                     {% else %}
                     <input type="checkbox" name="tag[]" id="tag{{ forloop.counter }}" value="{{ tag.tid }}"/>
                 {% endif %}
-                <label for="tag{{ forloop.counter }}">{{ tag.tag }} {{ tag.num_votes }}</label><br />
+                <label for="tag{{ forloop.counter }}">{{ tag.tag }} ({{ tag.num_votes }})</label><br />
             {% endfor %}
             <input type="submit" value="Update tag counts" />
             </form>
@@ -116,16 +119,7 @@
                     <!-- Provide a button to click to submit the form. -->
                     <input type="submit" name="submit" value="Add New Tag" />
                 </form>
-
-            
-
             </div>
-
-            <ul class="pager">
-            <li><a href="/prev/">Previous</a></li>
-            <li><a href="/next/">Next</a></li>
-        </ul>
-        </div>
         <script type="text/javascript" src="{{STATIC_URL}}js/tagging.js"></script>
         
     </body>
