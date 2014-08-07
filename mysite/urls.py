@@ -12,15 +12,17 @@ urlpatterns = patterns('',
     url(r'^login/$', LoginPage),
     url(r'^register/$', register, name='register'), 
     
-    url(r'^add/(?P<es_id>[-\w]+)$', addTag), #addEntry
+    url(r'^add/(?P<es_id>[-\w]+)$', addTag),
     url(r'^addNewEntryFunc/$', addEntry),
     url(r'^view/$', viewTag),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^next/$', nextEntry),
     url(r'^prev/$', previousEntry),
-    url(r'^vote/(?P<es_id>[-\w]+)$', vote),
+    url(r'^completed/$', completedPage),
 
+    url(r'^vote/(?P<es_id>[-\w]+)$', vote),
     url(r'^increment/$', Increment),
+    url(r'^decrement/$', Decrement),
     url(r'^vote/$', vote),
 )
 

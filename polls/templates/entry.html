@@ -13,6 +13,12 @@
         <!-- Upvote-->
         <script src="{{STATIC_URL}}js/jquery-2.0.2.min.js"></script>
         <script src="{{STATIC_URL}}css/jquery.upvote.js" ></script>
+        <script src="{{STATIC_URL}}js/scrollfix.js" type="text/javascript"></script>
+        <script>
+          function preventBack(){window.history.forward();}
+          setTimeout("preventBack()", 0);
+          window.onunload=function(){null};
+        </script>
         <link rel="stylesheet" href="{{STATIC_URL}}tests/qunit-1.11.0.css">
         <link rel="stylesheet" href="{{STATIC_URL}}css/jquery.upvote.css">
             <style type="text/css">
@@ -27,7 +33,7 @@
         
     </head>
     
-    <body>
+    <body onunload="unloadP('UniquePageNameHereScroll')" onload="loadP('UniquePageNameHereScroll')">
         <nav class="navbar navbar-default" role="navigation">
           <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -69,10 +75,11 @@
                 <li><a href="/next/">Next Passage</a></li>
             </ul>
 
+            <h5>Click the plus button of any tag to increment that tag by 1,
+                or the minus button to cancel the increment you made. </h5>
             <h4>Existing Tags: </h4>
-            <h5>Click the checkbox of an existing tag below to increment that tag by 1,
-                or cancel the increment you did by un-checking your checks. </h5>
 
+            <!--
             <form action="/vote/{{es_id}}" method="post">
             {% csrf_token %}
             {% for tag in data.tags %}
@@ -85,14 +92,22 @@
             {% endfor %}
             <input type="submit" value="Update tag counts" />
             </form>
+            -->
 
-                <!-- <div class="btn-group">
-                   {% for tag in data.tags %}
-                    <button id="increment" type="button" class="increment btn btn-default" value='{{tag.tid}}' method="POST">
-                        {{tag.tag}} &nbsp; {{tag.tag}}
-                    </button>
+                <div id="votes">
+                   {% for ts in data.tag_specifics %}
+                    {% if ts.upvoted %}
+                        <button id="ts{{forloop.counter}}" type="button" class="decrement" href="/decrement/"
+                                value='{{ts.tsid}}' method="POST" style="width:22px;height:22px;"> - </button>
+                    {% else %}
+                        <button id="ts{{forloop.counter}}" type="button" class="increment" href="/increment/"
+                                value='{{ts.tsid}}' method="POST" style="width:22px;height:22px;"> + </button>
+                    {% endif %}
+                    <label style="font-size:18px" for="ts{{forloop.counter}}">
+                        {{ ts.tag.tag }} ({{ ts.tag.num_votes }})</label><br />
+
                     {% empty %} <p> No tags </p>
-                    {% endfor%} -->
+                    {% endfor%}
 
                     <!-- {% for tag in data.tags %}
                     <div class="upvote" data-id="{{tag.tid}}" >
@@ -121,6 +136,6 @@
                 </form>
             </div>
         <script type="text/javascript" src="{{STATIC_URL}}js/tagging.js"></script>
-        
+        </div>
     </body>
 </html>

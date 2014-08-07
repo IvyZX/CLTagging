@@ -30,20 +30,13 @@ $( "#add-new-entry" ).click(function() {
 	  	console.log(response);
 	  	if (response.success === true) {
 	  		alert( "You have successfully added a new entry" );
-	  		//Enabled = false
+	  		$("#new-text-entry").val("");
+	  		$("#entry-number").val("");
 	  	} else {
 	  		alert("error");
 	  	}
 	  })
 });
-
-function swapToDec(){
-	document.getElementById("increment").id = "decrement";
-}
-
-function swapToInc(){
-	document.getElementById("decrement").id = "increment";
-}
 
 
 $( ".increment" ).click(function() {
@@ -55,10 +48,8 @@ $( ".increment" ).click(function() {
 	},function (response) {
 	  	console.log(response);
 	  	if (response.success === true) {
-	  		alert( "You have successfully incremented tag" );
 	  		window.location.reload();
-	  	} else {
-	  		alert("error");
+	  		//$('#votes').load(document.URL + ' #votes');
 	  	}
 	})
 });
@@ -73,10 +64,8 @@ $( ".decrement" ).click(function() {
 	}, function(response) {
 		console.log(response);
 		if (response.success == true){
-			alert( "You have successfully decremented tag" );
 			window.location.reload();
-		} else {
-			alert("error");
+			//$('#votes').load(document.URL + ' #votes');
 		}
 	})
 });

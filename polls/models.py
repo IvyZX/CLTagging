@@ -46,11 +46,12 @@ class SocialGroup(models.Model):
 # The generalized entry for all users
 class Entry(models.Model):
     eid = models.IntegerField()
-    entry = models.CharField(max_length=1000)
+    entry = models.CharField(max_length=5000)
     pub_date = models.DateTimeField()
+    practice = models.BooleanField()
     # scroll = models.BooleanField(default=False)
     def __unicode__(self):
-        return self.entry
+        return self.entry[:30]
 
 
 # The class that has specifics for any given Entry class
