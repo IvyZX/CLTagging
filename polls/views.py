@@ -91,13 +91,13 @@ def register(request):
             # # This delays saving the model until we're ready to avoid integrity problems.
             # profile = profile_form.save(commit=False)
 
-
+            '''
             eids = request.POST.getlist("entry")
             for e in eids:
                 e = int(e)
-
-            # randomly select entries
-            # designated_entries = [0, 1] + random.sample(e.eid for e in Entry.objects.all())
+            '''
+            # I will probably just hardcode a random set of entries once we added all entries into the system.
+            eids = random.sample(e.eid for e in entries)
 
             profile = UserProfile(user=user,
                                   date_created=datetime.datetime.utcnow(),

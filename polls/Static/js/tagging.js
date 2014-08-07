@@ -40,12 +40,12 @@ $( "#add-new-entry" ).click(function() {
 
 
 $( ".increment" ).click(function() {
-  var tid = $(this).val();
-  console.log(tid);
-  // Passing the jQuery Response
-  var jqxhr = $.post( "/increment/" , {
+    var tid = $(this).val();
+    console.log(tid);
+    // Passing the jQuery Response
+    var jqxhr = $.post( "/increment/" , {
   		'tid' : tid
-	},function (response) {
+    },function (response) {
 	  	console.log(response);
 	  	if (response.success === true) {
 	  		window.location.reload();
@@ -56,6 +56,7 @@ $( ".increment" ).click(function() {
 
 
 $( ".decrement" ).click(function() {
+	//alert("oh you click it")
 	var tid = $(this).val();
 	console.log(tid);
 	//passing jQuery response
