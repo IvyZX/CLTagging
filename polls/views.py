@@ -17,6 +17,7 @@ from ast import literal_eval
 import json
 import datetime
 import random
+import csv
 
 
 def LoginPage(request):
@@ -28,11 +29,8 @@ def LoginPage(request):
         # Gather the username and password provided by the user.
         # This information is obtained from the login form.
         username = request.POST['username']
-        password = request.POST['password']
-
-        # Use Django's machinery to attempt to see if the username/password
-        # combination is valid - a User object is returned if it is.
-        user = authenticate(username=username, password=password)
+        user = User.objects.get(username=username)
+        user.backend='django.contrib.auth.backends.ModelBackend'
 
         # If we have a User object, the details are correct.
         # If None (Python's way of representing the absence of a value), no user
@@ -48,8 +46,6 @@ def LoginPage(request):
                 # An inactive account was used - no logging in!
                 return HttpResponse("Your account is disabled.")
         else:
-            # Bad login details were provided. So we can't log the user in.
-            print "Invalid login details: {0}, {1}".format(username, password)
             return HttpResponse("Invalid login details supplied.")
 
     # The request is not a HTTP POST, so display the login form.
@@ -75,58 +71,76 @@ def register(request):
         # Note that we make use of both UserForm and UserProfileForm.
         user_form = UserForm(data=request.POST)
 
-        # If the two forms are valid...
         if user_form.is_valid():
-
-            # Save the user's form data to the database.
             user = user_form.save()
-
-            # Now we hash the password with the set_password method.
-            # Once hashed, we can update the user object.
-            user.set_password(user.password)
+            user.backend='django.contrib.auth.backends.ModelBackend'
             user.save()
-
-            # # Now sort out the UserProfile instance.
-            # # Since we need to set the user attribute ourselves, we set commit=False.
-            # # This delays saving the model until we're ready to avoid integrity problems.
-            # profile = profile_form.save(commit=False)
 
             '''
             eids = request.POST.getlist("entry")
             for e in eids:
                 e = int(e)
+            # eids = random.sample([e.eid for e in entries], 5)
             '''
-            # I will probably just hardcode a random set of entries once we added all entries into the system.
-            eids = random.sample(e.eid for e in entries)
-
             profile = UserProfile(user=user,
                                   date_created=datetime.datetime.utcnow(),
-                                  designated_entries=[0, 1]+eids,  # ",".join(designated_entries),
+                                  designated_entries=[],
                                   index_of_last_completed_entry=0,
                                   is_expert=user_form.cleaned_data["expert"],
                                   is_nominal=user_form.cleaned_data["nominal"])
-
-            # Now we save the UserProfile model instance.
             profile.save()
 
-            # Update our variable to tell the template registration was successful.
-            registered = True
+            login(request, user)
 
-        # Invalid form or forms - mistakes or something else?
-        # Print problems to the terminal.
-        # They'll also be shown to the user.
+            return HttpResponseRedirect('/passage/')
+
         else:
             print user_form.errors
 
-    # Not a HTTP POST, so we render our form using two ModelForm instances.
-    # These forms will be blank, ready for user input.
     else:
         user_form = UserForm()
+        user_form.fields['expert'].label = "Expertise Status"
+        user_form.fields['nominal'].label = "Experimental Setup"
 
     # Render the template depending on the context.
     return render_to_response(
         'register.html',
         {'user_form': user_form, 'registered': registered, 'entries': entries}, context)
+
+
+def AssignPassage(request):
+    # Like before, get the request's context.
+    context = RequestContext(request)
+
+    # A boolean value for telling the template whether the registration was successful.
+    # Set to False initially. Code changes value to True when registration succeeds.
+    #registered = False
+    entries = Entry.objects.filter(practice=False)
+
+    # If it's a HTTP POST, we're interested in processing data.
+    if request.method == 'POST':
+        eids = request.POST.getlist("entries")
+        p = UserProfile.objects.get(user=request.user)
+        p.designated_entries = [0, 1] + eids
+        p.save()
+
+        return HttpResponseRedirect('/login/')
+
+    # Else, we set up the page for entering data.
+    else:
+        ups = UserProfile.objects.all()
+        # assume a maximum of 50 entries here
+        userlist = [None] * 50
+        for e in entries:
+            userlist[e.eid] = {"entry": e, "users": []}
+        for up in ups:
+            for eid in list(literal_eval(up.designated_entries))[2:]:
+                userlist[int(eid)]['users'].append(up.user_id)
+
+
+    return render_to_response(
+        'passage-assign.html',
+        {'userlist': userlist, 'user': request.user}, context)
 
 
 @login_required
@@ -136,8 +150,9 @@ def EntryPage(request):
     p = UserProfile.objects.get(user=request.user)
     rand_entries = list(literal_eval(p.designated_entries))
     plen = len(rand_entries)
+    if plen == 0:
+        return HttpResponseRedirect("/passage/")
     if plen == p.index_of_last_completed_entry:
-        # the user has completed his survey
         return HttpResponseRedirect("/completed/")
     else:
         e_id = rand_entries[p.index_of_last_completed_entry]
@@ -177,15 +192,18 @@ def NewEntryPage(request):
     data = []
     return render(request, "new_entry.html", {"data": data})
 
+
 def completedPage(request):
     return render(request, "completed.html")
 
+
 @ensure_csrf_cookie
 def nextEntry(request):
-	p = UserProfile.objects.get(user=request.user)
-	p.index_of_last_completed_entry = p.index_of_last_completed_entry + 1
-	p.save()
-	return HttpResponseRedirect('/entry/')
+    p = UserProfile.objects.get(user=request.user)
+    p.index_of_last_completed_entry = p.index_of_last_completed_entry + 1
+    p.save()
+    return HttpResponseRedirect('/entry/')
+
 
 @ensure_csrf_cookie
 def previousEntry(request):
@@ -200,16 +218,19 @@ def previousEntry(request):
 def addEntry(request):
     newEntry = request.POST.get("input_text")
     entryNumber = request.POST.get("entry_number")
+    entryTitle = request.POST.get("entry_title")
     responseData = {}
     try:
         e = Entry.objects.get(eid=entryNumber)
+        e.title = entryTitle
         e.entry = newEntry
         e.pub_date = datetime.datetime.utcnow()
         e.save()
         responseData["success"] = True
         responseData["entry_existed"] = True
     except ObjectDoesNotExist:
-        e = Entry(eid=entryNumber, entry=newEntry, pub_date=datetime.datetime.utcnow(), practice=False)
+        e = Entry(eid=entryNumber, entry=newEntry, pub_date=datetime.datetime.utcnow(), title=entryTitle,
+                  practice=False)
         e.save()
         responseData["success"] = True
         responseData["entry_existed"] = False
@@ -220,6 +241,7 @@ def scroll(request):
     e = request.POST.get("entry")
     e.scroll = True
     return
+
 
 # exception: here in nominal group, if someone add a tag that others have added (but he cannot see it)
 # another Tag object will be created.
@@ -236,7 +258,7 @@ def addTag(request, es_id):
             t.num_votes += 1
             t.save()
             ts = TagSpecifics(entry_specifics=es, tag=t, entry_date=datetime.datetime.utcnow(),
-                          upvoted=True)
+                              upvoted=True)
             ts.save()
     except ObjectDoesNotExist:
         t = Tag(entry=es.entry, tag=text, num_votes=1)
@@ -245,6 +267,7 @@ def addTag(request, es_id):
                           upvoted=True)
         ts.save()
     return HttpResponseRedirect('/entry/')
+
 
 def Increment(request):
     responseData = {}
@@ -278,6 +301,7 @@ def Decrement(request):
     else:
         responseData["success"] = False
     return HttpResponse(json.dumps(responseData), content_type="application/json")
+
 
 '''
 def Decrement(request):
@@ -340,7 +364,28 @@ def vote(request, es_id):
     # return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
-def viewTag(request):
-    thetid = request.POST.get("tid")
-    theTag = Tag.objects.get(tid=thetid)
-    return theTag.tag
+def OutputData(request):
+    return render(request, 'output.html')
+
+
+def OutputUserInfo(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="user_info.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['User ID', 'Expertise Level', 'Experimental Setup', 'Time Created', 'Entries assigned'])
+    for up in UserProfile.objects.all():
+        if up.designated_entries != '[]':
+            if up.is_expert:
+                el = 'expert'
+            else:
+                el = 'novice'
+            if up.is_nominal:
+                es = 'nominal'
+            else:
+                es = 'social'
+            entries = []
+            for eid in list(literal_eval(up.designated_entries))[2:]:
+                entries.append(int(eid))
+            writer.writerow([up.user_id, el, es, str(up.date_created), str(entries)])
+    return response

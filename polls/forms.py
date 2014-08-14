@@ -5,14 +5,12 @@ from django import forms
 
 class UserForm(forms.ModelForm):
     username = forms.CharField()
-    email = forms.EmailField()
-    password = forms.CharField(widget=forms.PasswordInput())
-    expert = forms.NullBooleanField()
-    nominal = forms.NullBooleanField()
+    expert = forms.ChoiceField(required=True, choices=((True, 'Expert'), (False, 'Novice')))
+    nominal = forms.ChoiceField(required=True, choices=((True, 'Nominal'), (False, 'Social')))
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'expert', 'nominal')
+        fields = ('username', 'expert', 'nominal')
 
 
 class UserProfileForm(forms.ModelForm):

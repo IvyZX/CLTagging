@@ -15,6 +15,14 @@ class UserInline(admin.TabularInline):
 	model = User
 	extra = 5
 
+class EntrySpecificsInline(admin.TabularInline):
+    model = EntrySpecifics
+    extra = 5
+
+class TagSpecificsInline(admin.TabularInline):
+    model = TagSpecifics
+    extra = 5
+
 class EntryAdmin(admin.ModelAdmin):
 	fieldsets = [
 		(None,				{'fields':['eid']}),
@@ -37,8 +45,11 @@ class BaseModelAdmin(admin.ModelAdmin):
 	]
 
 admin.site.register(Entry, EntryAdmin)
+admin.site.register(EntrySpecifics)
 admin.site.register(Tag)
-admin.site.register(UserProfile)
+admin.site.register(TagSpecifics)
+admin.site.register(UserProfile, UserProfileAdmin)
+
 
 
 # class ChoiceInLine(admin.TabularInline):

@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Signup </title>
+        <title>Assign Passage </title>
         <meta http-equiv="content-type" content="text/html;charset=utf-8" />
         
         <script src="{{STATIC_URL}}js/jquery-2.0.3.js" ></script>
@@ -27,15 +27,22 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">Tagging Project</a>
+              <a class="navbar-brand">Tagging Project</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav">
-                <li><a href="/new/">Add New Entry</a></li>
-                <li><a href="/entry/">Test</a></li>
-                <li class="active"><a href="/register/">User Signup</a></li>
+                <li class="active"><a href="/login/">User Login</a></li>
+                <li class="dropdown">
+                    <a href="#" data-toggle="dropdown" class="dropdown-toggle">Admin <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/register/">User Signup</a></li>
+                        <li><a href="/passage/">Assign Passages</a></li>
+                        <li><a href="/new/">Add New Entry</a></li>
+                        <li><a href="/output/">Output data</a></li>
+                    </ul>
+                </li>
               </ul>
               
             </div><!-- /.navbar-collapse -->
@@ -43,35 +50,27 @@
         </nav>
 
        
-        <div class="container" style="width:50%;">
-        <h1>Register with Rango</h1>
+        <div class="container" style="width:50%">
+        <h1>Assign Participant Passages</h1>
 
-        {% if registered %}
-        Rango says: <strong>thank you for registering!</strong>
-        <a href="/rango/">Return to the homepage.</a><br />
-        {% else %}
-        Rango says: <strong>register here!</strong><br />
+        <strong>Want to assign passage for another user? </strong> <a href="/login/"> Click here to log it in.</a>
+        <br><br>
 
-        <form id="user_form" method="post" action="/rango/register/"
-                enctype="multipart/form-data">
-
+        <form action="/passage/" method="post" >
             {% csrf_token %}
-
-            <!-- Display each form. The as_p method wraps each element in a paragraph
-                 (<p>) element. This ensures each element appears on a new line,
-                 making everything look neater.  {{ profile_form.as_p }}-->
-            {{ user_form.as_p }}
-           
-
-            <!-- Provide a button to click to submit the form. -->
-            <input type="submit" name="submit" value="Register" />
-        </form>
-        {% endif %}
-
-
+            {% for thisentry in userlist %}
+                {% if thisentry %}
+                    <input type="checkbox" name="entries" id="thisentry{{ forloop.counter }}" value="{{ thisentry.entry.eid }}"/>
+                    <label for="thisentry{{ forloop.counter }}">{{ thisentry.entry.title }} (
+                        {% for u in thisentry.users %}
+                            {{ u }},
+                        {% endfor %}
+                        ) </label><br />
+                {% endif %}
+            {% endfor %}
+            <input type="submit" value="Assign these passages to user {{ user.username }}." />
+            </form>
 
         </div>
-        
-        <script type="text/javascript" src="{{STATIC_URL}}js/signup.js"></script>
     </body>
 </html>

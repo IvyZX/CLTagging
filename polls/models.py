@@ -35,8 +35,8 @@ class UserProfile(models.Model):
         return dict(user=self.user, date_created=self.date_created, designated_entries=self.designated_entries,
                     i=self.index_of_last_completed_entry, is_expert=self.is_expert, is_nominal=self.is_nominal)
 
-    # def __unicode__(self):
-    # return unicode(self.id)
+    def __unicode__(self):
+        return self.user
 
 
 class SocialGroup(models.Model):
@@ -46,12 +46,13 @@ class SocialGroup(models.Model):
 # The generalized entry for all users
 class Entry(models.Model):
     eid = models.IntegerField()
+    title = models.CharField(max_length=200)
     entry = models.CharField(max_length=5000)
     pub_date = models.DateTimeField()
     practice = models.BooleanField()
     # scroll = models.BooleanField(default=False)
     def __unicode__(self):
-        return self.entry[:30]
+        return self.title
 
 
 # The class that has specifics for any given Entry class
@@ -88,7 +89,7 @@ class TagSpecifics(models.Model):
     tsid = UUIDField(primary_key=True, editable=False)
     tag = models.ForeignKey(Tag)
     entry_specifics = models.ForeignKey(EntrySpecifics)
-    entry_date = models.DateField()
+    entry_date = models.DateTimeField()
     upvoted = models.BooleanField(default=True)
     def as_json(self):
         return dict(entry_specifics=self.entry_specifics, tag=self.tag, entry_date=self.entry_date, tsid=self.tid,
