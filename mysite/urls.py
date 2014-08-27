@@ -20,13 +20,15 @@ urlpatterns = patterns('',
     url(r'^prev/$', previousEntry),
     url(r'^completed/$', completedPage),
 
-    url(r'^vote/(?P<es_id>[-\w]+)$', vote),
     url(r'^increment/$', Increment),
     url(r'^decrement/$', Decrement),
-    url(r'^vote/$', vote),
 
     url(r'^output/$', OutputData),
+    url(r'^output_users/$', OutputUsersInfo),
+    url(r'^output_passages/$', OutputPassagesInfo),
+    url(r'^output_tags/$', OutputTagsInfo),
     url(r'^output_user/$', OutputUserInfo),
+    url(r'^output_tag/$', OutputTagInfo),
 )
 
 # add new entry - PAGE

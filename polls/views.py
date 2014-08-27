@@ -121,7 +121,7 @@ def AssignPassage(request):
     if request.method == 'POST':
         eids = request.POST.getlist("entries")
         p = UserProfile.objects.get(user=request.user)
-        p.designated_entries = [0, 1] + eids
+        p.designated_entries = [41, 42] + eids
         p.save()
 
         return HttpResponseRedirect('/login/')
@@ -218,19 +218,16 @@ def previousEntry(request):
 def addEntry(request):
     newEntry = request.POST.get("input_text")
     entryNumber = request.POST.get("entry_number")
-    entryTitle = request.POST.get("entry_title")
     responseData = {}
     try:
         e = Entry.objects.get(eid=entryNumber)
-        e.title = entryTitle
         e.entry = newEntry
         e.pub_date = datetime.datetime.utcnow()
         e.save()
         responseData["success"] = True
         responseData["entry_existed"] = True
     except ObjectDoesNotExist:
-        e = Entry(eid=entryNumber, entry=newEntry, pub_date=datetime.datetime.utcnow(), title=entryTitle,
-                  practice=False)
+        e = Entry(eid=entryNumber, entry=newEntry, pub_date=datetime.datetime.utcnow(), practice=False)
         e.save()
         responseData["success"] = True
         responseData["entry_existed"] = False
@@ -303,72 +300,14 @@ def Decrement(request):
     return HttpResponse(json.dumps(responseData), content_type="application/json")
 
 
-'''
-def Decrement(request):
-    es_id = request.POST.get('esid')
-    es = EntrySpecifics.objects.get(euuid=es_id)
-    thetid = request.POST.get("tid")
-    t = Tag.objects.get(tid=tid)
-    responseData = {}
-    try:
-        theTag = Tag.objects.get(tid=thetid)
-        theTag.num_votes = theTag.num_votes - 1
-        theTag.upvoted = False
-        theTag.save()
-        responseData["success"] = True
-        #responseData["num_votes"] = theTag.num_votes
-        #responseData["comments"] = 'Decremented the tag!'
-    except Exception:
-        responseData["success"] = False
-        #responseData["comments"] = 'Could not decrement!'
-    return HttpResponse(json.dumps(responseData), content_type="application/json")
-'''
-
-
-# use checkbox to do the voting
-def vote(request, es_id):
-    responseData = {}
-    es = EntrySpecifics.objects.get(euuid=es_id)
-    tids = request.POST.getlist("tag[]")
-    current_ts = TagSpecifics.objects.filter(entry_specifics=es)
-    # check whether the existed upvoted tags should be decremented in this update
-    for ts in current_ts:
-        if ts.upvoted:
-            ts_id = ts.tag.tid
-            if ts_id not in tids:
-                t = ts.tag
-                t.num_votes -= 1
-                t.save()
-                ts.upvoted = False
-                ts.entry_date = datetime.datetime.utcnow()
-                ts.save()
-    # update the checked tags
-    for tid in tids:
-        t = Tag.objects.get(tid=tid)
-        try:
-            ts = TagSpecifics.objects.get(tag=t, entry_specifics=es)
-        except ObjectDoesNotExist:
-            ts = TagSpecifics(entry_specifics=es, tag=t, entry_date=datetime.datetime.utcnow(),
-                              upvoted=True)
-            ts.save()
-            t.num_votes += 1
-            t.save()
-        if ts.upvoted is False:
-            t.num_votes += 1
-            t.save()
-            ts.upvoted = True
-            ts.entry_date = datetime.datetime.utcnow()
-            ts.save()
-    responseData["success"] = True
-    return HttpResponseRedirect('/entry/')
-    # return HttpResponse(json.dumps(responseData), content_type="application/json")
-
 
 def OutputData(request):
-    return render(request, 'output.html')
+    context = RequestContext(request)
+    ups = UserProfile.objects.all()
+    tags = Tag.objects.all()
+    return render_to_response('output.html', {'ups': ups, 'tags': tags}, context)
 
-
-def OutputUserInfo(request):
+def OutputUsersInfo(request):
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="user_info.csv"'
@@ -389,3 +328,79 @@ def OutputUserInfo(request):
                 entries.append(int(eid))
             writer.writerow([up.user_id, el, es, str(up.date_created), str(entries)])
     return response
+
+def OutputPassagesInfo(request):
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="passage_info.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Passage ID', 'User IDs', 'Title'])
+    entrylist = [None] * 50
+    for e in Entry.objects.filter(practice=False):
+        entrylist[e.eid] = {'entry': e, 'users': []}
+    for up in UserProfile.objects.all():
+        for eid in list(literal_eval(up.designated_entries))[2:]:
+            entrylist[int(eid)]['users'].append(up.user_id)
+    for eobj in entrylist:
+        if eobj:
+            e = eobj['entry']
+            title = ""
+            for t in e.title:
+                if t == "'":
+                    title = title + '\''
+                elif t == '"':
+                    title = title + '\"'
+                else:
+                    title = title + t
+            writer.writerow([e.eid, str(eobj['users']), title])
+    return response
+
+def OutputTagsInfo(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="tag_info.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Tag ID', 'Tag', 'Votes', 'Entry ID'])
+    for t in Tag.objects.all():
+        writer.writerow([t.tid, t.tag, t.num_votes, t.entry.eid])
+    return response
+
+def OutputUserInfo(request):
+    if request.method == 'POST':
+        userid = request.POST.get('user')
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="user_' + userid + '_info.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Entry ID', 'Tag ID', 'Tag', 'Time Updated'])
+        ess = EntrySpecifics.objects.filter(user_id=userid)
+        for es in ess:
+            tss = TagSpecifics.objects.filter(entry_specifics_id=es.euuid, upvoted=True)
+            for ts in tss:
+                writer.writerow([es.entry_id, ts.tag_id, ts.tag.tag, ts.entry_date])
+        return response
+    else:
+        return HttpResponse("Wrong data. No user selected. ")
+
+def OutputTagInfo(request):
+    if request.method == 'POST':
+        tid = request.POST.get('tag')
+        tag = Tag.objects.get(tid=tid)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="tag_' + tag.tag + '_info.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['User ID', 'Expertise Level', 'Experimental Setup', 'Time Updated'])
+        tss = TagSpecifics.objects.filter(tag=tag)
+        for ts in tss:
+            es = EntrySpecifics.objects.get(euuid=ts.entry_specifics_id)
+            up = UserProfile.objects.get(user_id=es.user_id)
+            if up.is_expert:
+                el = 'expert'
+            else:
+                el = 'novice'
+            if up.is_nominal:
+                es = 'nominal'
+            else:
+                es = 'social'
+            writer.writerow([up.user_id, el, es, ts.entry_date])
+        return response
+    else:
+        return HttpResponse("Wrong data. No tag selected. ")

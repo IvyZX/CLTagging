@@ -36,23 +36,17 @@ class UserProfile(models.Model):
                     i=self.index_of_last_completed_entry, is_expert=self.is_expert, is_nominal=self.is_nominal)
 
     def __unicode__(self):
-        return self.user
-
-
-class SocialGroup(models.Model):
-    user = models.ManyToManyField(User)
+        return str(self.user_id)
 
 
 # The generalized entry for all users
 class Entry(models.Model):
     eid = models.IntegerField()
-    title = models.CharField(max_length=200)
     entry = models.CharField(max_length=5000)
     pub_date = models.DateTimeField()
     practice = models.BooleanField()
-    # scroll = models.BooleanField(default=False)
     def __unicode__(self):
-        return self.title
+        return self.eid
 
 
 # The class that has specifics for any given Entry class
@@ -70,9 +64,7 @@ class EntrySpecifics(models.Model):
 # The tags stored back, one for every tag
 class Tag(models.Model):
     tid = UUIDField(primary_key=True, editable=False)
-    # entry_specifics = models.ForeignKey(EntrySpecifics)
     tag = models.CharField(max_length=100)
-    # entry_date = models.DateTimeField()
     num_votes = models.IntegerField()
     upvoted = models.BooleanField()
     entry = models.ForeignKey(Entry)

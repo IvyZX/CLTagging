@@ -21,20 +21,17 @@ $(document).ready(function() {
 $( "#add-new-entry" ).click(function() {
   var inputText = $("#new-text-entry").val();
   var entryNum = $("#entry-number").val();
-  var entryTitle = $("#entry-title").val();
   console.log(inputText);
   // Passing the jQuery Response
   var jqxhr = $.post( "/addNewEntryFunc/" , {
 		'input_text' : inputText,
-		'entry_number' : entryNum,
-		'entry_title' : entryTitle
+		'entry_number' : entryNum
 	},function (response) {
 	  	console.log(response);
 	  	if (response.success === true) {
 	  		alert( "You have successfully added a new entry" );
 	  		$("#new-text-entry").val("");
 	  		$("#entry-number").val("");
-	  		$("#entry-title").val("");
 	  	} else {
 	  		alert("error");
 	  	}
