@@ -44,7 +44,7 @@ class Entry(models.Model):
     eid = models.IntegerField()
     entry = models.CharField(max_length=5000)
     pub_date = models.DateTimeField()
-    practice = models.BooleanField()
+    practice = models.BooleanField(default=False)
     def __unicode__(self):
         return self.eid
 
@@ -55,7 +55,6 @@ class EntrySpecifics(models.Model):
     date_time = models.DateTimeField()
     user = models.ForeignKey(User)
     euuid = UUIDField(primary_key=True, editable=False)
-    # scrolled = models.BooleanField()
 
     def __unicode__(self):
         return self.euuid
@@ -66,7 +65,6 @@ class Tag(models.Model):
     tid = UUIDField(primary_key=True, editable=False)
     tag = models.CharField(max_length=100)
     num_votes = models.IntegerField()
-    upvoted = models.BooleanField()
     entry = models.ForeignKey(Entry)
 
     def as_json(self):
