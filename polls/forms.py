@@ -13,10 +13,6 @@ class UserForm(forms.ModelForm):
         fields = ('username', 'expert', 'nominal')
 
 
-class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-
 class AddTagForm(forms.ModelForm):
     tag = forms.CharField(max_length=100)
 
