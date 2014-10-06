@@ -52,26 +52,28 @@
        
         <div class="container" style="width:50%">
         <h1>Assign Participant Passages</h1>
+        {% if user.username %}
+            <strong>Now assigning passages to user {{ user.username }}. <strong><br>
+            <strong>Want to assign passage for another user? </strong> <a href="/login/"> Click here to log it in.</a>
+            <br><br>
 
-        <strong>Now assigning passages to user {{ user.username }}. <strong><br>
-        <strong>Want to assign passage for another user? </strong> <a href="/login/"> Click here to log it in.</a>
-        <br><br>
-
-        <form action="/passage/" method="post" >
-            {% csrf_token %}
-            {% for thisentry in userlist %}
-                {% if thisentry %}
-                    <input type="checkbox" name="entries" id="thisentry{{ forloop.counter }}" value="{{ thisentry.entry.eid }}"/>
-                    <label for="thisentry{{ forloop.counter }}">{{ thisentry.entry.eid }} (
-                        {% for u in thisentry.users %}
-                            {{ u }},
-                        {% endfor %}
-                        ) </label><br />
-                {% endif %}
-            {% endfor %}
-            <input type="submit" value="Assign these passages to user {{ user.username }}." />
-            </form>
-
+            <form action="/passage/" method="post" >
+                {% csrf_token %}
+                {% for thisentry in userlist %}
+                    {% if thisentry %}
+                        <input type="checkbox" name="entries" id="thisentry{{ forloop.counter }}" value="{{ thisentry.entry.eid }}"/>
+                        <label for="thisentry{{ forloop.counter }}">{{ thisentry.entry.eid }} (
+                            {% for u in thisentry.users %}
+                                {{ u }},
+                            {% endfor %}
+                            ) </label><br />
+                    {% endif %}
+                {% endfor %}
+                <input type="submit" value="Assign these passages to user {{ user.username }}." />
+                </form>
+        {% else %}
+            <strong>No user selected. </strong> <a href="/login/"> Click here to log a user in.</a> <br>
+        {% endif %}
         </div>
     </body>
 </html>
