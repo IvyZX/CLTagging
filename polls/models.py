@@ -46,7 +46,7 @@ class Entry(models.Model):
     pub_date = models.DateTimeField()
     practice = models.BooleanField(default=False)
     def __unicode__(self):
-        return self.eid
+        return str(self.eid)
 
 
 # The class that has specifics for any given Entry class

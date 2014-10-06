@@ -69,13 +69,6 @@
                  making everything look neater. {{ profile_form.as_p }}-->
             {{ user_form.as_p }}
 
-            <!--
-            {% for entry in entries %}
-                <input type="checkbox" name="entry" id="entry{{ forloop.counter }}" value="{{ entry.eid }}"/>
-                <label for="entry{{ forloop.counter }}">{{ entry }}</label><br />
-            {% endfor %}
-            -->
-
             <!-- Provide a button to click to submit the form. -->
             <input type="submit" name="submit" value="Register" />
         </form>
