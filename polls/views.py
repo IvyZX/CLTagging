@@ -135,7 +135,7 @@ def AssignPassage(request):
             userlist[e.eid] = {"entry": e, "users": []}
         for up in ups:
             for eid in list(literal_eval(up.designated_entries))[2:]:
-                userlist[int(eid)]['users'].append(up.user_id)
+                userlist[int(eid)]['users'].append(up.user.username)
 
 
     return render_to_response(
@@ -153,7 +153,8 @@ def EntryPage(request):
     if plen == 0:
         return HttpResponseRedirect("/login/")
     if plen == p.index_of_last_completed_entry:
-        p.index_of_last_completed_entry = 0
+        p.index_of_last_completed_entry = 2
+        p.save()
         return HttpResponseRedirect("/completed/")
     else:
         e_id = rand_entries[p.index_of_last_completed_entry]
@@ -174,7 +175,10 @@ def EntryPage(request):
                     ts.save()
         data["entry_id"] = e.eid
         data["es_id"] = es.euuid
-        data["pass_num"] = p.index_of_last_completed_entry + 1
+        if e.practice:
+            data["title"] = "PRACTICE PASSAGE #" + str(e.eid-40)
+        else:
+            data["title"] = "PASSAGE #" + str(p.index_of_last_completed_entry-1)
         data["entry"] = e.entry
         data["tag_specifics"] = TagSpecifics.objects.filter(entry_specifics=es)
 

@@ -56,7 +56,6 @@
         <a href="/output_users/"> Open data of all users. </a><br><br>
         <a href="/output_passages/"> Open data of all passages. </a><br><br>
         <a href="/output_tags/"> Open data of all tags. </a><br><br>
-
         <form action="/output_user/" method="post">
             <select name="user">
             {% csrf_token %}
@@ -65,8 +64,7 @@
             {% endfor %}
             </select>
             <input type="submit" value="View tags this user upvoted.">
-        </form>
-        <br>
+        </form><br>
         <form action="/output_tag/" method="post">
             <select name="tag">
             {% csrf_token %}

@@ -62,7 +62,7 @@
         <div class="container" style="width:70%; float:left;">
         	<div class="panel panel-default">
 			  <div class="panel-heading">
-			    <h3 class="panel-title">PASSAGE #{{data.pass_num}}:</h3>
+			    <h3 class="panel-title">{{data.title}}:</h3>
 			  </div>
 			  <div class="panel-body">
 			    {{data.entry}}
@@ -98,7 +98,7 @@
             </div>
             <br>
             <div id="add">
-                <strong>Add tag here!</strong><br />
+                <strong>Add tag here:</strong><br />
                 <form id="add_tag_form" method="post" action="/add/{{es_id}}"
                         enctype="multipart/form-data">
 

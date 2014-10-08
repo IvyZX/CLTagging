@@ -64,12 +64,12 @@
                         <input type="checkbox" name="entries" id="thisentry{{ forloop.counter }}" value="{{ thisentry.entry.eid }}"/>
                         <label for="thisentry{{ forloop.counter }}">{{ thisentry.entry.eid }} (
                             {% for u in thisentry.users %}
-                                {{ u.user }},
+                                {{ u }}
                             {% endfor %}
                             ) </label><br />
                     {% endif %}
                 {% endfor %}
-                <input type="submit" value="Assign these passages to user {{ user.username }}." />
+                <input type="submit" value="Assign" />
                 </form>
         {% else %}
             <strong>No user selected. </strong> <a href="/login/"> Click here to log a user in.</a> <br>

@@ -36,7 +36,7 @@ class UserProfile(models.Model):
                     i=self.index_of_last_completed_entry, is_expert=self.is_expert, is_nominal=self.is_nominal)
 
     def __unicode__(self):
-        return str(self.user_id)
+        return str(self.user.username)
 
 
 # The generalized entry for all users
