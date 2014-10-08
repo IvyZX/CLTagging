@@ -151,8 +151,9 @@ def EntryPage(request):
     rand_entries = list(literal_eval(p.designated_entries))
     plen = len(rand_entries)
     if plen == 0:
-        return HttpResponseRedirect("/passage/")
+        return HttpResponseRedirect("/login/")
     if plen == p.index_of_last_completed_entry:
+        p.index_of_last_completed_entry = 0
         return HttpResponseRedirect("/completed/")
     else:
         e_id = rand_entries[p.index_of_last_completed_entry]

@@ -64,7 +64,7 @@
                         <input type="checkbox" name="entries" id="thisentry{{ forloop.counter }}" value="{{ thisentry.entry.eid }}"/>
                         <label for="thisentry{{ forloop.counter }}">{{ thisentry.entry.eid }} (
                             {% for u in thisentry.users %}
-                                {{ u }},
+                                {{ u.user }},
                             {% endfor %}
                             ) </label><br />
                     {% endif %}
